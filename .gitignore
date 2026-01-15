@@ -1,0 +1,30 @@
+# Binaires compilés
+rtsCommander
+*.exe
+*.test
+*.prof
+
+# Configuration (ne pas versionner le fichier avec les vrais rolling codes)
+remotes.json
+
+# Sauvegardes
+*.bak
+*.backup
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporaires
+tmp/
+temp/

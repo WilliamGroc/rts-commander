@@ -1,0 +1,20 @@
+{
+  "salon": {
+    "name": "salon",
+    "address": 1193046,
+    "rolling_code": 1,
+    "encryption_key": 167
+  },
+  "chambre": {
+    "name": "chambre",
+    "address": 2236723,
+    "rolling_code": 1,
+    "encryption_key": 167
+  },
+  "bureau": {
+    "name": "bureau",
+    "address": 3355443,
+    "rolling_code": 1,
+    "encryption_key": 167
+  }
+}
