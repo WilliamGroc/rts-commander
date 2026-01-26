@@ -1,0 +1,8 @@
+﻿Broche CC1101,Broche Raspberry Pi 3 (GPIO)
+VCC,3.3V (Pin 1 ou 17)
+GND,GND (Pin 6, 9, 14, etc.)
+SCK,GPIO 11 (Pin 23)
+MISO,GPIO 9 (Pin 21)
+MOSI,GPIO 10 (Pin 19)
+CSN/CS,GPIO 8 (Pin 24) ou autre*
+GDO0/GDO2,GPIO de votre choix*
