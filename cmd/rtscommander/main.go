@@ -10,9 +10,16 @@ import (
 	"rtscommander/m/internal/controller"
 	"rtscommander/m/internal/radio"
 	"rtscommander/m/internal/remote"
+
+	"periph.io/x/host/v3"
 )
 
 func main() {
+	// Initialiser periph.io pour accéder au hardware
+	if _, err := host.Init(); err != nil {
+		log.Fatalf("Failed to initialize periph.io: %v", err)
+	}
+
 	// Flags CLI
 	configPath := flag.String("config", "remotes.json", "Path to the configuration file")
 	httpAddr := flag.String("http", "", "HTTP server address (e.g., :8080)")
