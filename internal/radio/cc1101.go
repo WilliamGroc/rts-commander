@@ -116,6 +116,84 @@ func WriteRegister(conn spi.Conn, addr, value byte) error {
 	return nil
 }
 
+// TestCC1101 teste la communication avec le CC1101 et affiche les informations
+func TestCC1101(conn spi.Conn) error {
+	// Lire PARTNUM (devrait être 0x00 pour CC1101)
+	partnum, err := ReadRegister(conn, 0xF0)
+	if err != nil {
+		return fmt.Errorf("failed to read PARTNUM register: %v", err)
+	}
+	fmt.Printf("  PARTNUM: 0x%02X ", partnum)
+	if partnum == 0x00 {
+		fmt.Println("✓ (CC1101 détecté)")
+	} else {
+		fmt.Printf("⚠ (valeur attendue: 0x00)\n")
+	}
+
+	// Lire VERSION
+	version, err := ReadRegister(conn, 0xF1)
+	if err != nil {
+		return fmt.Errorf("failed to read VERSION register: %v", err)
+	}
+	fmt.Printf("  VERSION: 0x%02X ", version)
+	if version == 0x04 || version == 0x14 {
+		fmt.Println("✓")
+	} else {
+		fmt.Printf("⚠ (valeur typique: 0x04 ou 0x14)\n")
+	}
+
+	// Lire quelques registres de configuration pour vérifier la programmation
+	fmt.Println("\n3. Vérification de la configuration...")
+	
+	// FREQ2, FREQ1, FREQ0 - Fréquence
+	freq2, _ := ReadRegister(conn, 0x0D)
+	freq1, _ := ReadRegister(conn, 0x0E)
+	freq0, _ := ReadRegister(conn, 0x0F)
+	fmt.Printf("  Fréquence (FREQ2/1/0): 0x%02X%02X%02X ", freq2, freq1, freq0)
+	if freq2 == 0x10 && freq1 == 0xB0 && freq0 == 0x71 {
+		fmt.Println("✓ (433.42 MHz)")
+	} else {
+		fmt.Println("⚠")
+	}
+
+	// MDMCFG2 - Configuration modulation
+	mdmcfg2, _ := ReadRegister(conn, 0x12)
+	fmt.Printf("  Modulation (MDMCFG2): 0x%02X ", mdmcfg2)
+	if mdmcfg2 == 0x03 {
+		fmt.Println("✓ (ASK/OOK)")
+	} else {
+		fmt.Println("⚠")
+	}
+
+	// PKTCTRL0 - Mode de paquet
+	pktctrl0, _ := ReadRegister(conn, 0x08)
+	fmt.Printf("  Mode paquet (PKTCTRL0): 0x%02X ", pktctrl0)
+	if pktctrl0 == 0x32 {
+		fmt.Println("✓ (Asynchrone)")
+	} else {
+		fmt.Println("⚠")
+	}
+
+	// Test de l'état (MARCSTATE)
+	marcstate, err := ReadRegister(conn, 0xF5)
+	if err != nil {
+		return fmt.Errorf("failed to read MARCSTATE register: %v", err)
+	}
+	fmt.Printf("\n  État du module (MARCSTATE): 0x%02X ", marcstate)
+	switch marcstate & 0x1F {
+	case 0x01:
+		fmt.Println("✓ (IDLE)")
+	case 0x13:
+		fmt.Println("✓ (TX)")
+	case 0x14:
+		fmt.Println("✓ (RX)")
+	default:
+		fmt.Printf("(État: %d)\n", marcstate&0x1F)
+	}
+
+	return nil
+}
+
 // ReadRegister lit un registre du CC1101
 func ReadRegister(conn spi.Conn, addr byte) (byte, error) {
 	tx := []byte{addr | ReadSingle, 0x00}

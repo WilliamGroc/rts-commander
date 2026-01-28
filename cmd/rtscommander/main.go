@@ -20,11 +20,37 @@ func main() {
 	command := flag.String("cmd", "", "Command to send: up, down, my/stop, prog")
 	addRemote := flag.Bool("add", false, "Add a new remote")
 	listRemotes := flag.Bool("list", false, "List all remotes")
+	testCC1101 := flag.Bool("test", false, "Test CC1101 module and SPI connection")
 	address := flag.Uint("address", 0, "Remote address (24-bit, required for -add)")
 	rollingCode := flag.Uint("rolling", 1, "Initial rolling code (for -add)")
 	encKey := flag.Uint("key", 0xA7, "Encryption key (for -add)")
 
 	flag.Parse()
+
+	// Mode test CC1101
+	if *testCC1101 {
+		fmt.Println("=== Test du module CC1101 ===")
+		fmt.Println()
+
+		// Initialiser le CC1101
+		fmt.Println("1. Initialisation de la connexion SPI...")
+		conn, err := radio.InitCC1101()
+		if err != nil {
+			log.Fatalf("❌ Échec de l'initialisation du CC1101: %v", err)
+		}
+		fmt.Println("✓ Connexion SPI établie")
+		fmt.Println()
+
+		// Tester la communication en lisant les registres d'identification
+		fmt.Println("2. Lecture des registres d'identification...")
+		if err := radio.TestCC1101(conn); err != nil {
+			log.Fatalf("❌ Échec du test CC1101: %v", err)
+		}
+		fmt.Println()
+
+		fmt.Println("✓ Test réussi ! Le module CC1101 est correctement branché et configuré.")
+		return
+	}
 
 	// Charger la configuration
 	cfg, err := config.Load(*configPath)
@@ -114,12 +140,15 @@ func main() {
 
 	// Aucune action spécifiée
 	fmt.Println("Usage:")
+	fmt.Println("  Test CC1101:     --test")
 	fmt.Println("  List remotes:    --list")
 	fmt.Println("  Add remote:      --add --remote <name> --address <addr>")
 	fmt.Println("  Send command:    --remote <name> --cmd <up|down|my|prog>")
 	fmt.Println("  Start HTTP API:  --http :8080")
 	fmt.Println("")
 	fmt.Println("Examples:")
+	fmt.Println("  Test CC1101 module:")
+	fmt.Println("    ./rtsCommander --test")
 	fmt.Println("  Add a remote:")
 	fmt.Println("    ./rtsCommander --add --remote salon --address 0x123456")
 	fmt.Println("  Send a command:")
